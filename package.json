@@ -1,0 +1,37 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "start:dev": "npx nodemon src/main.ts",
+    "start:prod": "npm run build && node dist/main.js",
+    "lint": "eslint . --fix",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dron404/CRUD-API.git"
+  },
+  "author": "Andrei Mashedo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dron404/CRUD-API/issues"
+  },
+  "homepage": "https://github.com/Dron404/CRUD-API#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "dotenv": "^16.4.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "nodemon": "^3.0.3",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "uuid": "^9.0.1"
+  }
+}
