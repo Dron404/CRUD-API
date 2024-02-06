@@ -1,9 +1,15 @@
 import { createServer } from 'http';
+import UserService from './service/user';
+import StorageService from './service/storage';
 
 export default class App {
   private port: number;
+  userService: UserService;
+  storage: StorageService;
   constructor(args: { port: number }) {
     this.port = args.port;
+    this.storage = new StorageService();
+    this.userService = new UserService(this.storage);
   }
 
   async start() {

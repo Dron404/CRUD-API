@@ -6,7 +6,8 @@ export type User = {
   age: number;
   hobbies: string[];
 };
-export default class Storage {
+
+export default class StorageService {
   users: Map<string, User>;
   constructor() {
     this.users = new Map<string, User>();
