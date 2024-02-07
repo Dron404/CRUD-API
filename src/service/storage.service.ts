@@ -1,11 +1,5 @@
 import { v4 } from 'uuid';
-
-export type User = {
-  id: string;
-  username: string;
-  age: number;
-  hobbies: string[];
-};
+import { User } from 'src/common/types';
 
 export default class StorageService {
   users: Map<string, User>;
@@ -15,7 +9,8 @@ export default class StorageService {
 
   addUser(args: User) {
     const id = this.generateUserId();
-    this.users.set(id, args);
+    this.users.set(id, { id, ...args });
+    return this.users.get(id);
   }
 
   getUser(id: string) {
@@ -27,10 +22,11 @@ export default class StorageService {
   }
 
   updateUser(data: User) {
-    if (!this.users.has(data.id)) {
+    if (!this.users.get(data.id)) {
       return undefined;
     }
     this.users.set(data.id, data);
+    return this.users.get(data.id);
   }
 
   deleteUser(id: string) {
