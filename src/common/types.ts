@@ -17,3 +17,5 @@ export type User = {
   age: number;
   hobbies: string[];
 };
+
+export type DB = Map<string, User>;

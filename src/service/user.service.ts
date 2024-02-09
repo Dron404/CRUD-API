@@ -8,45 +8,45 @@ export default class UserService {
     this.storage = storage;
   }
 
-  getUser(userId: string) {
+  async getUser(userId: string) {
     const isUUID = validate(userId);
     if (isUUID) {
-      const data = this.storage.users.get(userId);
+      const data = await this.storage.getUser(userId);
       return { code: data ? 200 : 404, data: data ? data : { message: 'User is not found' } };
     }
     return { code: 400, data: { message: 'id is not a valid UUID' } };
   }
 
-  addUser(data: User): ResDataType {
+  async addUser(data: User): Promise<ResDataType> {
     const isDataValid = this.isValidUserData(data);
     if (!isDataValid.success) {
       return { code: 400, data: { message: { ...isDataValid.message } } };
     }
-    return { code: 201, data: this.storage.addUser(data) };
+    return { code: 201, data: await this.storage.addUser(data) };
   }
 
-  updateUser(data: User, id: string) {
+  async updateUser(data: User, id: string) {
     const isDataValid = this.isValidUserData(data);
     const isUUID = validate(id);
     if (!isDataValid.success || !isUUID) {
       !isUUID && isDataValid.message.unshift('id is not a valid UUID');
       return { code: 400, data: { message: { ...isDataValid.message } } };
     }
-    const updatedUser = this.storage.updateUser({ ...data, id });
+    const updatedUser = await this.storage.updateUser({ ...data, id });
     return { code: updatedUser ? 200 : 404, data: updatedUser ? updatedUser : { message: 'User is not found' } };
   }
 
-  deleteUser(userId: string) {
+  async deleteUser(userId: string) {
     const isUUID = validate(userId);
     if (isUUID) {
-      const data = this.storage.users.delete(userId);
+      const data = await this.storage.deleteUser(userId);
       return { code: data ? 204 : 404, data: data ? {} : { message: 'User is not found' } };
     }
     return { code: 400, data: { message: 'id is not a valid UUID' } };
   }
 
-  getUsers() {
-    return { code: 200, data: this.storage.getUsers() };
+  async getUsers() {
+    return { code: 200, data: await this.storage.getUsers() };
   }
 
   isValidUserData(args: User) {

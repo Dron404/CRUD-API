@@ -1,43 +1,63 @@
 import { v4 } from 'uuid';
-import { User } from 'src/common/types';
+import { DB, User } from 'src/common/types';
+import { readFile, writeFile } from 'fs/promises';
 
 export default class StorageService {
   users: Map<string, User>;
-  constructor() {
-    this.users = new Map<string, User>();
+  constructor() {}
+
+  async connect() {
+    const db = await readFile('./src/DB/DB.json', 'utf8');
+    return new Map(Object.entries(JSON.parse(db))) as Map<string, User>;
   }
 
-  addUser(args: User) {
-    const id = this.generateUserId();
-    this.users.set(id, { id, ...args });
-    return this.users.get(id);
+  async save(data: Map<string, User>) {
+    await writeFile('./src/DB/DB.json', JSON.stringify(Object.fromEntries(data)), 'utf8');
   }
 
-  getUser(id: string) {
-    return this.users.get(id);
+  async addUser(args: User) {
+    const db = await this.connect();
+    const id = this.generateUserId(db);
+    db.set(id, { id, ...args });
+    const user = db.get(id);
+    await this.save(db);
+    return user;
   }
 
-  getUsers() {
-    return Array.from(this.users, ([, value]) => value);
+  async getUser(id: string) {
+    const db = await this.connect();
+    return db.get(id);
   }
 
-  updateUser(data: User) {
-    if (!this.users.get(data.id)) {
+  async getUsers() {
+    const db = await this.connect();
+    return Array.from(db, ([, value]) => value);
+  }
+
+  async updateUser(data: User) {
+    const db = await this.connect();
+    if (!db.get(data.id)) {
       return undefined;
     }
-    this.users.set(data.id, data);
-    return this.users.get(data.id);
+    db.set(data.id, data);
+    await this.save(db);
+    return db.get(data.id);
   }
 
-  deleteUser(id: string) {
-    return this.users.delete(id);
+  async deleteUser(id: string) {
+    const db = await this.connect();
+    const result = db.delete(id);
+    if (result) {
+      await this.save(db);
+    }
+    return result;
   }
 
-  generateUserId() {
+  generateUserId(db: DB): string {
     const id = v4();
-    if (!this.users.has(id)) {
+    if (!db.has(id)) {
       return id;
     }
-    return this.generateUserId();
+    return this.generateUserId(db);
   }
 }

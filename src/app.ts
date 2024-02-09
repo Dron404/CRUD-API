@@ -2,6 +2,7 @@ import { IncomingMessage, createServer } from 'http';
 import UserService from './service/user.service';
 import StorageService from './service/storage.service';
 import { BodyType, ReqParsedDataType, ResDataType } from './common/types';
+import cluster from 'cluster';
 
 export default class App {
   private port: number;
@@ -15,7 +16,10 @@ export default class App {
 
   async start() {
     const server = createServer(async (req, res) => {
-      console.log(process.env.PORT + req.method);
+      if (cluster.isWorker) {
+        //! only for test in multi worker
+        console.log(`Hi from port ${process.env.PORT}! I have new ${req.method} request`);
+      }
       try {
         const { method, url } = req;
         let response: ResDataType;
@@ -30,7 +34,7 @@ export default class App {
 
             response =
               data.type == BodyType.EMPTY && typeof data.payload == 'string'
-                ? this.userService.getUser(id)
+                ? await this.userService.getUser(id)
                 : { code: 400, data: { message: `Request Body should not exist` } };
 
             res.writeHead(response.code, { 'Content-Type': 'application/json' });
@@ -43,7 +47,7 @@ export default class App {
 
             response =
               data.type == BodyType.EMPTY && typeof data.payload == 'string'
-                ? this.userService.getUsers()
+                ? await this.userService.getUsers()
                 : { code: 400, data: { message: `Request Body should not exist` } };
 
             res.writeHead(response.code, { 'Content-Type': 'application/json' });
@@ -57,7 +61,7 @@ export default class App {
 
             response =
               data.type == BodyType.JSON && typeof data.payload != 'string'
-                ? this.userService.updateUser(data.payload, id)
+                ? await this.userService.updateUser(data.payload, id)
                 : { code: 400, data: { message: `Invalid request Body: ${data.payload}` } };
 
             res.writeHead(response.code, { 'Content-Type': 'application/json' });
@@ -69,7 +73,7 @@ export default class App {
             data = await this.ValidateRequest(req);
             response =
               data.type == BodyType.JSON && typeof data.payload != 'string'
-                ? this.userService.addUser(data.payload)
+                ? await this.userService.addUser(data.payload)
                 : { code: 400, data: { message: `Invalid request Body: ${data.payload}` } };
 
             res.writeHead(response.code, { 'Content-Type': 'application/json' });
@@ -83,7 +87,7 @@ export default class App {
 
             response =
               data.type == BodyType.EMPTY && typeof data.payload == 'string'
-                ? this.userService.deleteUser(id)
+                ? await this.userService.deleteUser(id)
                 : { code: 400, data: { message: `Request Body should not exist` } };
 
             res.writeHead(response.code, { 'Content-Type': 'application/json' });
@@ -111,7 +115,7 @@ export default class App {
       }
     });
     server.listen(this.port, () => {
-      console.log('listening on port ' + this.port);
+      console.log(`${cluster.isWorker ? 'Worker' : 'App'} listening on port ${this.port}`);
     });
   }
 

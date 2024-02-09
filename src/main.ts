@@ -7,6 +7,7 @@ import { initDB } from './common/DB';
 dotenv.config();
 
 const port = +process.env.PORT || 3000;
+
 if (cluster.isPrimary && process.argv.includes('--multi')) {
   let nextCluster = +port + 1;
   const proxyServer = http.createServer((req, res) => {
@@ -47,4 +48,8 @@ if (cluster.isPrimary && process.argv.includes('--multi')) {
 } else {
   const app = new App({ port: +process.env.PORT });
   app.start();
+}
+
+if (cluster.isPrimary) {
+  initDB();
 }
