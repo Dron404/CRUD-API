@@ -15,6 +15,7 @@ export default class App {
 
   async start() {
     const server = createServer(async (req, res) => {
+      console.log(process.env.PORT + req.method);
       try {
         const { method, url } = req;
         let response: ResDataType;
@@ -22,9 +23,10 @@ export default class App {
         let id: string;
 
         switch (true) {
-          case method === 'GET' && /^\/api\/users\/([^/]+)$/.test(url):
+          //* get User
+          case method === 'GET' && /^\/api\/users\/([^/]+)\/?$/.test(url):
             data = await this.ValidateRequest(req);
-            id = req.url.split('/').pop();
+            id = req.url.split('/')[3];
 
             response =
               data.type == BodyType.EMPTY && typeof data.payload == 'string'
@@ -35,9 +37,23 @@ export default class App {
             res.end(JSON.stringify(response.data));
             break;
 
-          case method === 'PUT' && /^\/api\/users\/([^/]+)$/.test(url):
+          //* get Users
+          case method === 'GET' && /^\/api\/users\/?$/.test(url):
             data = await this.ValidateRequest(req);
-            id = req.url.split('/').pop();
+
+            response =
+              data.type == BodyType.EMPTY && typeof data.payload == 'string'
+                ? this.userService.getUsers()
+                : { code: 400, data: { message: `Request Body should not exist` } };
+
+            res.writeHead(response.code, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(response.data));
+            break;
+
+          //* update User
+          case method === 'PUT' && /^\/api\/users\/([^/]+\/?)$/.test(url):
+            data = await this.ValidateRequest(req);
+            id = req.url.split('/')[3];
 
             response =
               data.type == BodyType.JSON && typeof data.payload != 'string'
@@ -48,6 +64,7 @@ export default class App {
             res.end(JSON.stringify(response.data));
             break;
 
+          //* create User
           case method === 'POST' && /^\/api\/users\/?$/.test(url):
             data = await this.ValidateRequest(req);
             response =
@@ -59,8 +76,18 @@ export default class App {
             res.end(JSON.stringify(response.data));
             break;
 
-          case method === 'DELETE':
-            console.log('DELETE');
+          //* delete User
+          case method === 'DELETE' && /^\/api\/users\/([^/]+\/?)$/.test(url):
+            data = await this.ValidateRequest(req);
+            id = req.url.split('/')[3];
+
+            response =
+              data.type == BodyType.EMPTY && typeof data.payload == 'string'
+                ? this.userService.deleteUser(id)
+                : { code: 400, data: { message: `Request Body should not exist` } };
+
+            res.writeHead(response.code, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(response.data));
             break;
           default:
             res.writeHead(404, { 'Content-Type': 'application/json' });

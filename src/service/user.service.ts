@@ -17,8 +17,6 @@ export default class UserService {
     return { code: 400, data: { message: 'id is not a valid UUID' } };
   }
 
-  //getUsers() {}
-
   addUser(data: User): ResDataType {
     const isDataValid = this.isValidUserData(data);
     if (!isDataValid.success) {
@@ -31,16 +29,25 @@ export default class UserService {
     const isDataValid = this.isValidUserData(data);
     const isUUID = validate(id);
     if (!isDataValid.success || !isUUID) {
-      isDataValid.message.unshift('id is not a valid UUID');
+      !isUUID && isDataValid.message.unshift('id is not a valid UUID');
       return { code: 400, data: { message: { ...isDataValid.message } } };
     }
     const updatedUser = this.storage.updateUser({ ...data, id });
     return { code: updatedUser ? 200 : 404, data: updatedUser ? updatedUser : { message: 'User is not found' } };
   }
 
-  //deleteUser(userId: string) {}
+  deleteUser(userId: string) {
+    const isUUID = validate(userId);
+    if (isUUID) {
+      const data = this.storage.users.delete(userId);
+      return { code: data ? 204 : 404, data: data ? {} : { message: 'User is not found' } };
+    }
+    return { code: 400, data: { message: 'id is not a valid UUID' } };
+  }
 
-  //getUsers(){}
+  getUsers() {
+    return { code: 200, data: this.storage.getUsers() };
+  }
 
   isValidUserData(args: User) {
     const { username, age, hobbies, ...other } = args;
