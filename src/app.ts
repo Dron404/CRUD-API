@@ -32,6 +32,10 @@ export default class App {
       console.log(`Hi from port ${process.env.PORT}! I have new ${req.method} request`);
     }
     try {
+      // ! test error
+      //  if (Math.random() > 0.5) {
+      //    throw new Error('test error');
+      //  }
       const { method, url } = req;
       let response: ResDataType;
       let data: ReqParsedDataType;
