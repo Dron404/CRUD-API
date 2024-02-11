@@ -1,5 +1,4 @@
-import App from './app'; // предположим, что ваш класс приложения экспортируется как App
-import { initDB } from './common/DB';
+import App from './app';
 
 const users = [
   { username: 'John', age: 30, hobbies: ['code', 'node.js', 'cafe'] },
@@ -11,7 +10,6 @@ describe('Test App scenario 1 check standard cases', () => {
   beforeAll(() => {
     app = new App({ port: 3000 });
     app.start();
-    initDB();
   });
   afterAll(() => {
     app.close();
@@ -67,7 +65,6 @@ describe('Test App scenario 2 check server responses if something goes wrong', (
   beforeAll(() => {
     app = new App({ port: 3001 });
     app.start();
-    initDB();
   });
   afterAll(() => {
     app.close();
@@ -76,18 +73,16 @@ describe('Test App scenario 2 check server responses if something goes wrong', (
   test('POST /api/users should answer with status code 400 and corresponding message if request body does not contain required fields', async () => {
     const response = await fetch('http://localhost:3001/api/users/', {
       method: 'POST',
-      body: JSON.stringify({ name: 'Jone' }),
+      body: JSON.stringify({ name: 'Jane' }),
       headers: { 'Content-Type': 'application/json' },
     });
 
     expect(response.status).toEqual(400);
   });
 
-  test('GET /api/users/{userId}  should return 400 if id is invalid uuid and 404 if user is not exist', async () => {
+  test('GET /api/users/{userId}  should return 400 if id is invalid uuid', async () => {
     const response = await fetch(`http://localhost:3001/api/users/12345-я_иду_тебя_искать`);
     expect(response.status).toEqual(400);
-    const response2 = await fetch(`http://localhost:3001/api/c1a9d7b3-d749-4b98-b570-348a1652d088`);
-    expect(response2.status).toEqual(404);
   });
   test('PUT /api/users/{userId} should 400  if userId is invalid and 404 if user is not exist', async () => {
     const response = await fetch(`http://localhost:3001/api/users/12345-я_иду_тебя_искать`, {
@@ -110,10 +105,10 @@ describe('Test App scenario 2 check server responses if something goes wrong', (
     });
     expect(response.status).toEqual(404);
   });
-  //test('GET /api/users/{userId} should return 404 status code', async () => {
-  //  const response = await fetch(`http://localhost:3000/api/users/${userId}`);
-  //  expect(response.status).toEqual(404);
-  //});
+  test('GET /api/users/{userId} should return  404 if user is not exist', async () => {
+    const response = await fetch(`http://localhost:3001/api/c1a9d7b3-d749-4b98-b570-348a1652d088`);
+    expect(response.status).toEqual(404);
+  });
 });
 
 describe('Test App scenario 3', () => {
@@ -122,7 +117,6 @@ describe('Test App scenario 3', () => {
   beforeAll(() => {
     app = new App({ port: 3000 });
     app.start();
-    initDB();
   });
   afterAll(() => {
     app.close();
@@ -168,7 +162,7 @@ describe('Test App scenario 3', () => {
     expect(response.status).toEqual(404);
   });
 
-  test('GET /api/users/ should return valod array of users', async () => {
+  test('GET /api/users/ should return valid array of users', async () => {
     for (const user of users) {
       await fetch('http://localhost:3000/api/users', {
         method: 'POST',

@@ -1,63 +1,62 @@
 import { v4 } from 'uuid';
 import { DB, User } from 'src/common/types';
-import { readFile, writeFile } from 'fs/promises';
+import cluster from 'cluster';
 
 export default class StorageService {
   users: Map<string, User>;
-  constructor() {}
-
-  async connect() {
-    const db = await readFile('./src/DB/DB.json', 'utf8');
-    return new Map(Object.entries(JSON.parse(db))) as Map<string, User>;
+  constructor() {
+    this.users = new Map<string, User>();
+    if (cluster.isWorker) {
+      process.on('message', (data: DB) => {
+        this.users = new Map(data);
+      });
+    }
   }
 
-  async save(data: Map<string, User>) {
-    await writeFile('./src/DB/DB.json', JSON.stringify(Object.fromEntries(data)), 'utf8');
+  async save() {
+    if (cluster.isWorker) {
+      process.send(Array.from(this.users));
+    }
   }
 
   async addUser(args: User) {
-    const db = await this.connect();
-    const id = this.generateUserId(db);
-    db.set(id, { id, ...args });
-    const user = db.get(id);
-    await this.save(db);
+    const id = this.generateUserId();
+    this.users.set(id, { id, ...args });
+    const user = this.users.get(id);
+    this.save();
     return user;
   }
 
   async getUser(id: string) {
-    const db = await this.connect();
-    return db.get(id);
+    return this.users.get(id);
   }
 
   async getUsers() {
-    const db = await this.connect();
-    return Array.from(db, ([, value]) => value);
+    return Array.from(this.users, ([, value]) => value);
   }
 
   async updateUser(data: User) {
-    const db = await this.connect();
-    if (!db.get(data.id)) {
+    if (!this.users.get(data.id)) {
       return undefined;
     }
-    db.set(data.id, data);
-    await this.save(db);
-    return db.get(data.id);
+    this.users.set(data.id, data);
+    await this.save();
+    return this.users.get(data.id);
   }
 
   async deleteUser(id: string) {
-    const db = await this.connect();
-    const result = db.delete(id);
+    const result = this.users.delete(id);
     if (result) {
-      await this.save(db);
+      await this.save();
     }
     return result;
   }
 
-  generateUserId(db: DB): string {
+  generateUserId(): string {
     const id = v4();
-    if (!db.has(id)) {
+    if (!this.users.has(id)) {
       return id;
     }
-    return this.generateUserId(db);
+    return this.generateUserId();
   }
 }
