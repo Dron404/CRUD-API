@@ -3,7 +3,6 @@ import http from 'http';
 import cluster from 'cluster';
 import { availableParallelism } from 'os';
 import dotenv from 'dotenv';
-import { initDB } from './common/DB';
 dotenv.config();
 
 const port = +process.env.PORT || 3000;
@@ -45,11 +44,15 @@ if (cluster.isPrimary && process.argv.includes('--multi')) {
   for (let i = 0; i < availableParallelism() - 1; i++) {
     cluster.fork({ PORT: port + i + 1 });
   }
+
+  cluster.on('message', (excludedWorker, data) => {
+    Object.values(cluster.workers).forEach((worker) => {
+      if (worker.id !== excludedWorker.id) {
+        worker.send(data);
+      }
+    });
+  });
 } else {
   const app = new App({ port: +process.env.PORT });
   app.start();
-}
-
-if (cluster.isPrimary) {
-  initDB();
 }
