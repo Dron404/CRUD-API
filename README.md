@@ -12,7 +12,7 @@
 - `npm run start:multi`: Запустить приложение в мультирежиме.
 
 Тесты:
-
+- Перед запуском тестов лучше выключить приложение, иначе могут возникнуть проблемы из-за занятых портов
 - `npm run test`: Запустить тесты.
 
 ## Реализованные Эндпоинты
@@ -136,7 +136,7 @@ We have 4 ways to run the app:
 - `npm run start:multi`: Run the app in multi mode.
   
 Test:
-
+- It's better to shut down the application before running tests, otherwise there may be issues due to occupied ports.
 - `npm run test`: Run the tests.
 
 ## Implemented Endpoints
