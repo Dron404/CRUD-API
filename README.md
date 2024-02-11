@@ -106,8 +106,25 @@
     "error": "Not Found",
     "statusCode": 404
   }
+  ```
 
-#EN
+- Если в ходе выполнения запроса возникнет необработанная ошибка, сервер вернет статус 500, а в теле ответа будет следующее сообщение:
+
+  ```json
+  {
+    "message": "test error",
+    "error": "Internal Server Error",
+    "statusCode": 500
+  }
+  ```
+
+
+
+
+
+# 
+
+# EN
 
 ## npm Commands
 
@@ -215,22 +232,31 @@ Test:
   ```
 - Request body validation is enforced, and extra fields in the request will result in an error and a status of 400. Example response body:
 
-```json
-{
+  ```json
+  {
   "message": {
     "0": "property id should not exist",
     "1": "property surname should not exist",
     "2": "property weight should not exist",
+   }
   }
-}
-```
+  ```
 - JSON format errors in the request will also lead to a status of 400, accompanied by the following response body:
 
-```json
-{
+  ```json
+  {
   "message": "Invalid request Body: Expected ',' or '}' after property value in JSON at position 100"
-}
-```
+  }
+  ```
+- If an unhandled error occurs during the execution of a request, the server will return a status of 500, and the response body will contain the following message:
+
+  ```json
+  {
+    "message": "test error",
+    "error": "Internal Server Error",
+    "statusCode": 500
+  }
+  ```
 
 
 
