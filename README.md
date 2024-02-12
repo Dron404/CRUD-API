@@ -4,12 +4,13 @@
 
 ## Команды npm
 
-Есть 4 способа запустить приложение:
+Есть 5 способов запустить приложение:
 
 - `npm run start`: Просто запустить приложение.
 - `npm run start:dev`: Запустить приложение в режиме разработки.
 - `npm run start:prod`: Собрать приложение и запустить сборку из `./dist`.
 - `npm run start:multi`: Запустить приложение в мультирежиме.
+- `start:prod:multi`: ()(О.o)()
 
 Тесты:
 - Перед запуском тестов лучше выключить приложение, иначе могут возникнуть проблемы из-за занятых портов
@@ -134,6 +135,7 @@ We have 4 ways to run the app:
 - `npm run start:dev`: Run the app in dev mode.
 - `npm run start:prod`: Build the app and run the build from `./dist`.
 - `npm run start:multi`: Run the app in multi mode.
+- `start:prod:multi`: ()(О.o)()
   
 Test:
 - It's better to shut down the application before running tests, otherwise there may be issues due to occupied ports.
