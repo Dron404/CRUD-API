@@ -3,6 +3,7 @@
 # RU 
 
 ## Команды npm
+Перед запуском надо сделать `npm i`, может быть `sudo npm i`, там как подет)).
 
 Есть 5 способов запустить приложение:
 
@@ -128,6 +129,7 @@
 # EN
 
 ## npm Commands
+Before starting you need to do `npm i` or `sudo npm i`.
 
 We have 4 ways to run the app:
 
